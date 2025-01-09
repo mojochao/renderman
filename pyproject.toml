@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "renderman"
+version = "0.1.0"
+description = "Render Kubernetes manifests from multiple sources"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "click==8.1.8",
+    "pyyaml==6.0.2",
+    "requests==2.32.3",
+]
+
+[project.scripts]
+renderman = "renderman.cli:app"

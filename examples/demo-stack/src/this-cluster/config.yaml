@@ -1,0 +1,87 @@
+demo:
+  # Environment metadata for this cluster
+  env:
+    name: demo-this-usw2
+    type: production
+    description: This EKS demo cluster in AWS US West 2 region
+    owner: some.person@example.com
+
+  # Kubernetes metadata for this cluster
+  kubernetes:
+    distribution: eks
+    endpoint: https://8E279989846F397CA22B7DFE41DB31A0.gr7.us-west-2.eks.amazonaws.com
+    version: 1.31
+
+  # AWS config for this cluster
+  aws:
+    accounts: "891377196466"
+    region: us-west-2
+    vpc_id: vpc-0f78e3b5b13b465f0
+    private_subnet_ids:
+    - subnet-08850c4c82c491f2a # in 'us-west-2a' availability zone
+    - subnet-0395ac995d7eac3d0 # in 'us-west-2b' availability zone
+    public_subnet_ids:
+    - subnet-09d84962988b7fcc7 # in 'us-west-2a' availability zone
+    - subnet-0823912ef7511314f # in 'us-west-2b' availability zone
+
+  stack:
+    cert-manager:
+      aws:
+        iam:
+          role_arns:
+            controller: arn:aws:iam::891377196466:role/cap-devel-usw2-cert-manager # in 'K8S_Devel' account
+            issuer: arn:aws:iam::982173521187:role/cap-devel-usw2-cert-manager # in 'DNS' account
+      servicemonitor:
+        enabled: true
+
+    external-dns:
+      aws:
+        iam:
+          role_arns:
+            controller: arn:aws:iam::891377196466:role/cap-devel-usw2-external-dns # in 'K8S_Devel' account
+            issuer: arn:aws:iam::982173521187:role/cap-devel-usw2-external-dns # in 'DNS' account
+        route53:
+          zone_ids: # in 'DNS' account
+          - Z05054561HOP3BY44QNVH
+          - Z01540943P64YRFR2B598
+      servicemonitor:
+        enabled: true
+
+    external-secrets:
+      aws:
+        iam:
+          role_arns:
+            k8s: arn:aws:iam::891377196466:role/cap-devel-usw2-external-dns # in 'K8S_Devel' account
+            ext: arn:aws:iam::063948486272:role/cap-devel-usw2-external-dns # in 'SecretsStaging' account
+      servicemonitor:
+        enabled: true
+
+    grafana:
+      aws:
+        iam:
+          role_arns:
+            k8s: arn:aws:iam::891377196466:role/cap-devel-usw2-grafana # in 'K8S_Devel' account
+      servicemonitor:
+        enabled: true
+      workloads:
+        controller:
+          ingress:
+            clusterissuer: letsencrypt
+            hostname: grafana.cap-devel-usw2.cap.mysamba.tv
+          replicas: 1
+          resources:
+            limits:
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+
+    loki:
+
+    metrics-server:
+      prometheus:
+        enabled: true
+
+    prometheus:
+
+    velero:

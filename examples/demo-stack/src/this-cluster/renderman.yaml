@@ -1,0 +1,123 @@
+renderman:
+  schema_version: "1"
+  apps:
+    cert-manager:
+      enabled: true
+      releases:
+      - name: cert-manager
+        namespace: cert-manager
+        chart_name: jetstack/cert-manager
+        chart_version: "1.16.2"
+      bundles:
+      - name: crds
+        data:
+          app_version: "v1.16.2"
+        urls:
+        - "https://github.com/cert-manager/cert-manager/releases/download/{app_version}/cert-manager.crds.yaml"
+
+    external-dns:
+      enabled: true
+      releases:
+      - name: external-dns
+        namespace: external-dns
+        chart_name: external-dns/external-dns
+        chart_version: "1.15.0"
+
+    external-secrets:
+      enabled: true
+      releases:
+      - name: external-secrets
+        namespace: external-secrets
+        chart_name: external-secrets/external-secrets
+        chart_version: "0.12.1"
+      bundles:
+      - name: crds
+        data:
+          app_version: "v0.12.1"
+        urls:
+        - "https://raw.githubusercontent.com/external-secrets/external-secrets/{app_version}/deploy/crds/bundle.yaml"
+
+    grafana:
+      enabled: true
+      releases:
+      - name: grafana
+        namespace: grafana
+        chart_name: grafana/grafana
+        chart_version: ""
+      bundles:
+      - name: externalsecrets
+        paths:
+        - "grafana/grafana-admin-credentials.externalsecret.yaml"
+        - "grafana/grafana-config.externalsecret.yaml"
+
+    kyverno:
+      enabled: true
+      releases:
+      - name: kyverno
+        namespace: kyverno
+        chart_name: kyverno/kyverno
+        chart_version: "3.3.4"
+      - name: kyverno-policies
+        namespace: kyverno
+        chart_name: kyverno/kyverno-policies
+        chart_version: "3.3.2"
+      bundles:
+      - name: crds
+        data:
+          app_version: "v1.13.2"
+          base_url: "https://raw.githubusercontent.com/kyverno/kyverno/refs/tags/{app_version}/config/crds"
+        urls:
+        - "{base_url}/kyverno/kyverno.io_cleanuppolicies.yaml"
+        - "{base_url}/kyverno/kyverno.io_clustercleanuppolicies.yaml"
+        - "{base_url}/kyverno/kyverno.io_clusterpolicies.yaml"
+        - "{base_url}/kyverno/kyverno.io_globalcontextentries.yaml"
+        - "{base_url}/kyverno/kyverno.io_policies.yaml"
+        - "{base_url}/kyverno/kyverno.io_policyexceptions.yaml"
+        - "{base_url}/kyverno/kyverno.io_updaterequests.yaml"
+        - "{base_url}/policyreport/wgpolicyk8s.io_clusterpolicyreports.yaml"
+        - "{base_url}/policyreport/wgpolicyk8s.io_policyreports.yaml"
+        - "{base_url}/reports/reports.kyverno.io_clusterephemeralreports.yaml"
+        - "{base_url}/reports/reports.kyverno.io_ephemeralreports.yaml"
+
+    loki:
+      enabled: true
+      releases:
+      - name: loki
+        namespace: loki
+        chart_name: grafana/loki-distributed
+        chart_version: "0.80.0"
+
+    prometheus-operator-crds:
+      enabled: true
+      releases:
+      - name: prometheus-operator-crds
+        namespace: prometheus-operator-crds
+        chart_name: prometheus-community/prometheus-operator-crds
+        chart_version: "17.0.2"
+      - name: prometheus
+        namespace: prometheus
+        chart_name: prometheus-community/kube-prometheus-stack
+        chart_version: "67.10.0"
+
+    velero:
+      enabled: true
+      releases:
+        chart_name: vmware-tanzu/velero
+        chart_version: "8.2.0"
+      bundles:
+      - name: crds
+        data:
+          app_version: "v1.15.1"
+          base_url: "https://github.com/vmware-tanzu/velero/raw/{app_version}/config/crd/v1/bases"
+        urls:
+        - "{base_url}/velero.io_backuprepositories.yaml"
+        - "{base_url}/velero.io_backups.yaml"
+        - "{base_url}/velero.io_backupstoragelocations.yaml"
+        - "{base_url}/velero.io_deletebackuprequests.yaml"
+        - "{base_url}/velero.io_downloadrequests.yaml"
+        - "{base_url}/velero.io_podvolumebackups.yaml"
+        - "{base_url}/velero.io_podvolumerestores.yaml"
+        - "{base_url}/velero.io_restores.yaml"
+        - "{base_url}/velero.io_schedules.yaml"
+        - "{base_url}/velero.io_serverstatusrequests.yaml"
+        - "{base_url}/velero.io_volumesnapshotlocations.yaml"

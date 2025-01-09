@@ -1,0 +1,26 @@
+fullnameOverride: cert-manager
+installCRDs: false
+
+replicaCount: {{ .Values.cap.stack.cert-manager.workloads.controller.num_replicas }}
+resources: {{ .Values.cap.stack.cert-manager.workloads.controller.resources | toYaml | nindent 2 }}
+extraArgs:
+- --dns01-recursive-nameservers-only
+- --dns01-recursive-nameservers=8.8.8.8:53,1.1.1.1:53
+serviceAccount:
+  create: true
+  name: cert-manager
+  annotations:
+    eks.amazonaws.com/role-arn: {{ .Values.cap.stack.cert-manager.aws.iam.role_arns.k8s }}
+startupapicheck:
+  resources: {{ .Values.cap.stack.cert-manager.workloads.startupapicheck.resources | toYaml | nindent 4 }}
+  timeout: 5m
+webhook:
+  hostNetwork: true
+  securePort: 10251
+  resources: {{ .Values.cap.stack.cert-manager.workloads.webhook.resources | toYaml | nindent 4 }}
+cainjector:
+  resources: {{ .Values.cap.stack.cert-manager.workloads.cainjector.resources | toYaml | nindent 4 }}
+prometheus:
+  enabled: {{ .Values.cap.stack.cert-manager.prometheus.enabled }}
+  servicemonitor:
+    enabled: {{ .Values.cap.stack.cert-manager.prometheus.enabled }}

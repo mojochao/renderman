@@ -1,0 +1,37 @@
+fullnameOverride: grafana
+
+admin:
+  existingSecret: grafana-admin-credentials
+
+envFromSecret: grafana-config
+
+ingress:
+  enabled: true
+  ingressClassName: nginx-internal
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: &hostname {{ .Values.cap.stack.grafana.workloads.controller.ingress.hostname }}
+  {{- if hasKey .Values.cap.stack.grafana.workloads.controller.ingress "clusterissuer" }}
+    cert-manager.io/cluster-issuer: {{ .Values.cap.stack.grafana.workloads.controller.ingress.clusterissuer }}
+  {{- end }}
+  hosts:
+  - *hostname
+  {{- if hasKey .Values.cap.stack.grafana.workloads.controller.ingress "clusterissuer" }}
+  tls:
+  - secretName: *hostname
+    hosts:
+    - *hostname
+  {{- end }}
+
+plugins:
+- grafana-piechart-panel
+
+resources: {{ .Values.cap.stack.grafana.workloads.controller.resources | toYaml | nindent 2 }}
+
+serviceAccount:
+  create: true
+  name: grafana
+  annotations:
+    eks.amazonaws.com/role-arn: {{ .Values.cap.stack.grafana.aws.iam.role_arns.k8s }}
+
+serviceMonitor:
+  enabled: {{ .Values.cap.stack.grafana.prometheus.enabled }}

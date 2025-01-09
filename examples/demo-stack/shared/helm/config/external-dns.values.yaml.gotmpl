@@ -1,0 +1,21 @@
+fullnameOverride: external-dns
+
+env:
+- name: AWS_DEFAULT_REGION
+  value: {{ .Values.aws.region }}
+extraArgs:
+- --aws-api-retries=3
+- --aws-zone-type=
+- --aws-batch-change-size=1000
+- --aws-assume-role={{ .Values.cap.stack.external-dns.aws.iam.role_arns.ext }} # in 'DNS' AWS account
+{{- range $idx, $zone_id := .Values.cap.stack.external-dns.aws.route53.zone_ids }}
+- --zone-id-filter={{ $zone_id }}
+{{- end}}
+logFormat: json # or "text"
+logLevel: debug
+resources: {{ .Values.cap.stack.external-dns.workloads.controller.resources | toYaml | nindent 2 }}
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: {{ .Values.cap.stack.external-dns.aws.iam.role_arns.k8s }} # in 'K8S_Devel' AWS account
+serviceMonitor:
+  enabled: {{ .Values.cap.stack.external-dns.prometheus.enabled }}

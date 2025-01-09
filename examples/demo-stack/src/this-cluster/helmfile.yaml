@@ -1,0 +1,227 @@
+environments:
+  default:
+    values:
+    - config.yaml
+    - renderman.yaml
+
+repositories:
+- name: external-dns
+  url: https://kubernetes-sigs.github.io/external-dns
+- name: external-secrets
+  url: https://charts.external-secrets.io
+- name: grafana
+  url: https://grafana.github.io/helm-charts
+- name: jetstack
+  url: https://charts.jetstack.io
+- name: metrics-server
+  url: https://kubernetes-sigs.github.io/metrics-server
+- name: ingress-nginx
+  url: https://kubernetes.github.io/ingress-nginx
+- name: prometheus-community
+  url: https://prometheus-community.github.io/helm-charts
+- name: velero
+  url: https://vmware-tanzu.github.io/helm-charts
+
+releases:
+# Fot the moment, I'm not installing the prometheus crds from raw sources as
+# we do with other stack components. This is because missing quotes in one of
+# the prometheus crds that make it unable to be loaded by the PyYaml package.
+# Instead, we are using the prometheus-operator-crds helm chart to install them
+# until the issue is fixed upstream.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/prometheus-community/prometheus-operator-crds contains package registry documentation
+# - https://github.com/prometheus-community/helm-charts contains chart source code
+# - https://prometheus.io/docs/introduction/overview/ contains Prometheus documentation
+
+- name: prometheus-operator-crds
+  namespace: prometheus
+  chart: prometheus-community/prometheus-operator-crds
+  version: 17.0.2
+
+# The metrics-server is a scalable, efficient source of container resource
+# metrics for Kubernetes built-in autoscaling in terms of Horizontal Pod
+# Autoscaler (HPA) and Vertical Pod Autoscaler (VPA) resources.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/metrics-server/metrics-server contains package registry documentation
+# - https://github.com/kubernetes-sigs/metrics-server contains application and chart source code
+
+- name: metrics-server
+  namespace: kube-system
+  chart: metrics-server/metrics-server
+  version: 3.12.2
+  values:
+  - ../../helm/config/metrics-server.values.yaml.gotmpl
+
+# The cert-manager app is a Kubernetes operator we use to automate management
+# and issuance of TLS certificates from Let's Encrypt.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/cert-manager/cert-manager contains package registry documentation
+# - https://cert-manager.io/ contains application documentation.
+# - https://github.com/cert-manager/cert-manager contains application and chart source code
+
+- name: cert-manager
+  namespace: cert-manager
+  chart: jetstack/cert-manager
+  version: 1.16.2
+  values:
+  - ../../helm/config/cert-manager.values.yaml.gotmpl
+
+# The external-dns app is a Kubernetes operator we use to automate management
+# of DNS records in Route 53.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/external-dns/external-dns contains package registry documentation
+# - https://kubernetes-sigs.github.io/external-dns/latest/ contains application documentation
+# - https://github.com/kubernetes-sigs/external-dns/ contains application and chart source code
+
+- name: external-dns
+  namespace: external-dns
+  chart: external-dns/external-dns
+  version: 1.14.4
+  values:
+  - ../../helm/config/external-dns.values.yaml.gotmpl
+
+# The external-secrets app is a Kubernetes operator we use to automate the
+# management of Kubernetes secrets synced from various external secrets services.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/external-secrets-operator/external-secrets contains package registry documentation
+# - https://external-secrets.io/ contains application documentation
+# - https://github.com/external-secrets/external-secrets contains application and chart source code
+
+- name: external-secrets
+  namespace: external-secrets
+  chart: external-secrets/external-secrets
+  version: 0.12.1
+  values:
+  - ../../helm/config/external-secrets.values.yaml.gotmpl
+
+# Grafana is a monitoring and observability platform that provides metrics,
+#
+# See also:
+# - https://artifacthub.io/packages/helm/grafana/grafana contains package registry documentation
+# - https://grafana.com/docs/grafana/latest/ contains application documentation
+# - https://github.com/grafana/grafana contains application source code
+# - https://github.com/grafana/helm-charts contains charts source code
+
+- name: grafana
+  namespace: grafana
+  chart: grafana/grafana
+  version: 8.8.2
+  values:
+  - ../../helm/config/grafana.values.yaml.gotmpl
+
+# Kyverno is a policy engine designed for Kubernetes. It allows cluster
+# administrators to validate, mutate, and generate Kubernetes resources.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/kyverno/kyverno contains package registry documentation
+# - https://kyverno.io/docs/ contains application documentation
+# - https://github.com/kyverno/kyverno contains application and charts source code
+
+- name: kyverno
+  namespace: kyverno
+  chart: kyverno/kyverno
+  version: 3.3.4
+  values:
+  - ../../helm/config/kyverno.values.yaml.gotmpl
+
+- name: kyverno-policies
+  namespace: kyverno
+  chart: kyverno/kyverno-policies
+  version: 3.3.2
+  values:
+  - ../../helm/config/kyverno-policies.values.yaml.gotmpl
+
+# Loki is a horizontally scalable, highly available, multi-tenant log aggregation
+# system inspired by Prometheus.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/grafana/loki-distributed contains package registry documentation
+# - https://grafana.com/docs/loki/latest/ contains application documentation
+# - https://github.com/grafana/loki contains application source code
+# - https://github.com/grafana/helm-charts contains charts source code
+
+- name: loki
+  namespace: loki
+  chart: grafana/loki-distributed
+  version: 0.80.0
+  values:
+  - ../../helm/config/loki.values.yaml.gotmpl
+
+# Metrics collection for Kubernetes used for Horizontal Pod Autoscaler (HPA)
+# and Vertical Pod Autoscaler (VPA) resources.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/metrics-server/metrics-server contains package registry documentation
+# - https://github.com/kubernetes-sigs/metrics-server contains application and charts source code
+
+- name: metrics-server
+  namespace: kube-system
+  chart: metrics-server/metrics-server
+  version: 3.12.2
+  values:
+  - ../../helm/config/metrics-server.values.yaml.gotmpl
+
+# The NGINX Ingress Controller is an Ingress controller that manages external
+# access to HTTP services in a Kubernetes cluster using NGINX.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx contains package registry documentation
+# - https://kubernetes.github.io/ingress-nginx/ contains application and charts source doe
+
+- name: ingress-nginx
+  namespace: ingress-nginx
+  chart: ingress-nginx/ingress-nginx
+  version: 4.12.0
+  values:
+  - ../../helm/config/ingress-nginx.values.yaml.gotmpl
+
+# Prometheus is a monitoring and alerting toolkit that provides monitoring
+# and alerting for services and containers.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack contains package registry documentation
+# - https://prometheus.io/docs/introduction/overview/ contains application documentation
+# - https://github.com/prometheus-operator/kube-prometheus contains application source code
+# - https://github.com/prometheus-community/helm-charts contains charts source code
+
+- name: prometheus
+  namespace: prometheus
+  chart: prometheus-community/kube-prometheus-stack
+  version: 67.7.0
+  values:
+  - ../../helm/config/prometheus.values.yaml.gotmpl
+
+# Trivy is a simple and comprehensive vulnerability scanner for containers.
+# The trivy-operator runs trivy as a Kubernetes operator.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/trivy-operator/trivy-operator contains package registry documentation
+# - https://aquasecurity.github.io/trivy-operator/latest/ contains application documentation
+# - https://github.com/aquasecurity/trivy-operator contains application and charts source code
+
+- name: trivy-operator
+  namespace: trivy-system
+  chart: aqua/trivy-operator
+  version: 0.25.0
+  values:
+  - ../../helm/config/trivy-operator.values.yaml.gotmpl
+
+# Velero is a backup and restore tool for Kubernetes resources and persistent volumes.
+#
+# See also:
+# - https://artifacthub.io/packages/helm/vmware-tanzu/velero contains package registry documentation
+# - https://velero.io/docs contains application documentation
+# - https://github.com/vmware-tanzu/velero contains application source code
+# - https://github.com/vmware-tanzu/helm-charts contains charts source code
+
+- name: velero
+  namespace: velero
+  chart: vmware-tanzu/velero
+  version: 8.2.0
+  values:
+  - ../../helm/config/velero.values.yaml.gotmpl

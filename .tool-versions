@@ -1,0 +1,4 @@
+helm 3.16.4
+helmfile 1.0.0-rc.8
+kustomize 5.5.0
+uv 0.5.16

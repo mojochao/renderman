@@ -1,0 +1,4 @@
+fullnameOverride: metrics-server
+
+replicas: {{ .Values.cap.metrics_server.workloads.controller.replicas }}
+resources: {{ .Values.cap.metrics_server.workloads.controller.resources | nindent 2 }}
